@@ -1,0 +1,6 @@
+
+<RCC>
+  <qresource prefix="smoothfitstep">
+    <file>images/fitting.png</file>
+  </qresource>
+</RCC>
