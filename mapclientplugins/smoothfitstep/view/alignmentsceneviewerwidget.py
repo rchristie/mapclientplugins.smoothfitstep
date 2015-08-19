@@ -1,7 +1,7 @@
 '''
 Created on July 15, 2015
 
-@author: rchristie
+@author: Richard Christie
 '''
 from PySide import QtCore
 from math import sqrt
@@ -19,18 +19,39 @@ class AlignmentSceneviewerWidget(SceneviewerWidget):
         '''
         super(AlignmentSceneviewerWidget, self).__init__(parent)
         self._model = None
+        self._alignKeyPressed = False
         self._active_button = QtCore.Qt.NoButton
         self._lastMousePos = None
 
     def setModel(self, model):
         self._model = model
 
+    def keyPressEvent(self, event):
+        '''
+        Holding down the 'A' key performs alignment (if align mode is on)
+        '''
+        if (event.key() == QtCore.Qt.Key_A) and event.isAutoRepeat() == False:
+            self._alignKeyPressed = True
+            event.setAccepted(True)
+        else:
+           super(AlignmentSceneviewerWidget, self).keyPressEvent(event)
+
+    def keyReleaseEvent(self, event):
+        if (event.key() == QtCore.Qt.Key_A)  and event.isAutoRepeat() == False:
+            self._alignKeyPressed = False
+            event.setAccepted(True)
+        else:
+           super(AlignmentSceneviewerWidget, self).keyReleaseEvent(event)
+
     def mousePressEvent(self, event):
         if self._active_button != QtCore.Qt.NoButton:
             return
-        if event.modifiers() & QtCore.Qt.CTRL:
+        if self._alignKeyPressed:
             if self._model.isStateAlign():
                 self._active_button = event.button()
+                # shift-Left button becomes middle button, to support Mac
+                if (self._active_button == QtCore.Qt.LeftButton) and (event.modifiers() & QtCore.Qt.SHIFT):
+                    self._active_button = QtCore.Qt.MiddleButton
                 self._lastMousePos = [ event.x(), event.y() ]
         else:
             super(AlignmentSceneviewerWidget, self).mousePressEvent(event)

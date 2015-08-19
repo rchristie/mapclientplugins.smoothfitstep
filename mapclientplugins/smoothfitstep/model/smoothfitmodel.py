@@ -1,7 +1,7 @@
 '''
 Created on Jul 16, 2015
 
-@author: rchristie
+@author: Richard Christie
 '''
 import json
 from opencmiss.zinc.context import Context
@@ -606,6 +606,7 @@ class SmoothfitModel(object):
         result = optimisation.setAttributeInteger(Optimisation.ATTRIBUTE_MAXIMUM_ITERATIONS, 1)
         if result != ZINC_OK:
             raise ValueError('Could not set optimisation maximum iterations')
+        #optimisation.setAttributeInteger(Optimisation.ATTRIBUTE_MAXIMUM_FUNCTION_EVALUATIONS, 100000)
         result = optimisation.optimise()
         if result != ZINC_OK:
             raise ValueError('Optimisation failed with result ' + str(result))

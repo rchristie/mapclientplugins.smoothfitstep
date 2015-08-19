@@ -4,7 +4,7 @@ MAP Client Plugin
 '''
 
 __version__ = '0.1.0'
-__author__ = 'GRC'
+__author__ = 'Richard Christie'
 __stepname__ = 'smoothfit'
 __location__ = ''
 

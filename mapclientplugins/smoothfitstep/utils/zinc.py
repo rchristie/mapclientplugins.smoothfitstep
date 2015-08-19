@@ -1,7 +1,7 @@
 '''
 Created on Jul 23, 2015
 
-@author: rchristie
+@author: Richard Christie
 '''
 from opencmiss.zinc.node import Node
 from opencmiss.zinc.field import Field

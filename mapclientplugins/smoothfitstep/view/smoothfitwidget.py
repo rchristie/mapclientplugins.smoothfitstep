@@ -1,7 +1,7 @@
 '''
 Created on July 15, 2015
 
-@author: rchristie
+@author: Richard Christie
 '''
 from PySide import QtGui, QtCore
 
