@@ -352,7 +352,7 @@ class SmoothfitModel(object):
         return minimums, maximums
 
     def _getAutoPointSize(self):
-        minimums, maximums = self._getModelRange()
+        minimums, maximums = self._getDataRange()
         dataSize = vectorops.magnitude(vectorops.sub(maximums, minimums))
         return 0.005*dataSize
 
