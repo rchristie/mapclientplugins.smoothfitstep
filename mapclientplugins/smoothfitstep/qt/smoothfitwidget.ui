@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>580</width>
-    <height>616</height>
+    <width>833</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,7 +36,7 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>230</width>
+       <width>346</width>
        <height>135</height>
       </size>
      </property>
@@ -63,10 +63,13 @@
        <item>
         <widget class="QScrollArea" name="scrollArea">
          <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+          <sizepolicy hsizetype="Minimum" vsizetype="Expanding">
            <horstretch>0</horstretch>
            <verstretch>0</verstretch>
           </sizepolicy>
+         </property>
+         <property name="horizontalScrollBarPolicy">
+          <enum>Qt::ScrollBarAlwaysOff</enum>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -76,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>228</width>
-            <height>588</height>
+            <width>344</width>
+            <height>604</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -123,8 +126,8 @@ QToolBox {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>224</width>
-                <height>468</height>
+                <width>340</width>
+                <height>510</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -134,19 +137,28 @@ QToolBox {
                </sizepolicy>
               </property>
               <attribute name="label">
-               <string>1. Align</string>
+               <string>Align</string>
               </attribute>
               <layout class="QVBoxLayout" name="verticalLayout_5">
                <property name="spacing">
+                <number>7</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
                 <number>3</number>
                </property>
-               <property name="margin">
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>3</number>
                </property>
                <item>
                 <widget class="QGroupBox" name="alignSettingsGroupBox">
                  <property name="title">
-                  <string>Settings</string>
+                  <string>Alignment Settings</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_7">
                   <property name="spacing">
@@ -175,8 +187,11 @@ QToolBox {
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
+                       <property name="toolTip">
+                        <string>Save alignment settings for recall later or when next run</string>
+                       </property>
                        <property name="text">
-                        <string>Save</string>
+                        <string>Save Settings</string>
                        </property>
                       </widget>
                      </item>
@@ -185,8 +200,11 @@ QToolBox {
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
+                       <property name="toolTip">
+                        <string>Load pre-saved alignment settings</string>
+                       </property>
                        <property name="text">
-                        <string>Load</string>
+                        <string>Load Settings</string>
                        </property>
                       </widget>
                      </item>
@@ -219,7 +237,11 @@ QToolBox {
                       </widget>
                      </item>
                      <item row="2" column="1">
-                      <widget class="QLineEdit" name="alignScaleLineEdit"/>
+                      <widget class="QLineEdit" name="alignScaleLineEdit">
+                       <property name="toolTip">
+                        <string>Scaling of model, where 1.0 is original size</string>
+                       </property>
+                      </widget>
                      </item>
                      <item row="3" column="0">
                       <widget class="QLabel" name="alignRotationLabel">
@@ -229,7 +251,11 @@ QToolBox {
                       </widget>
                      </item>
                      <item row="3" column="1">
-                      <widget class="QLineEdit" name="alignRotationLineEdit"/>
+                      <widget class="QLineEdit" name="alignRotationLineEdit">
+                       <property name="toolTip">
+                        <string>Rotation of the model as 3 Euler angles</string>
+                       </property>
+                      </widget>
                      </item>
                      <item row="4" column="0">
                       <widget class="QLabel" name="alignOffsetLabel">
@@ -239,7 +265,11 @@ QToolBox {
                       </widget>
                      </item>
                      <item row="4" column="1">
-                      <widget class="QLineEdit" name="alignOffsetLineEdit"/>
+                      <widget class="QLineEdit" name="alignOffsetLineEdit">
+                       <property name="toolTip">
+                        <string>Offset of the model in x, y ,z</string>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
@@ -249,6 +279,9 @@ QToolBox {
                </item>
                <item>
                 <widget class="QPushButton" name="alignResetButton">
+                 <property name="toolTip">
+                  <string>Reset the alignment settings</string>
+                 </property>
                  <property name="text">
                   <string>Reset</string>
                  </property>
@@ -256,6 +289,9 @@ QToolBox {
                </item>
                <item>
                 <widget class="QPushButton" name="alignAutoCentreButton">
+                 <property name="toolTip">
+                  <string>Offset the model to the centre of the data points. May need to click View All afterwards.</string>
+                 </property>
                  <property name="text">
                   <string>Auto Centre</string>
                  </property>
@@ -276,61 +312,13 @@ QToolBox {
                </item>
               </layout>
              </widget>
-             <widget class="QWidget" name="projectPage">
-              <property name="geometry">
-               <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>224</width>
-                <height>468</height>
-               </rect>
-              </property>
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <attribute name="label">
-               <string>2. Project</string>
-              </attribute>
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <item>
-                <widget class="QPushButton" name="projectClearButton">
-                 <property name="text">
-                  <string>Clear Projections</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="projectPointsButton">
-                 <property name="text">
-                  <string>Project Points</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <spacer name="verticalSpacer">
-                 <property name="orientation">
-                  <enum>Qt::Vertical</enum>
-                 </property>
-                 <property name="sizeHint" stdset="0">
-                  <size>
-                   <width>20</width>
-                   <height>40</height>
-                  </size>
-                 </property>
-                </spacer>
-               </item>
-              </layout>
-             </widget>
              <widget class="QWidget" name="fitPage">
               <property name="geometry">
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>224</width>
-                <height>468</height>
+                <width>340</width>
+                <height>510</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -340,15 +328,119 @@ QToolBox {
                </sizepolicy>
               </property>
               <attribute name="label">
-               <string>3. Fit</string>
+               <string>Fit</string>
               </attribute>
               <layout class="QVBoxLayout" name="verticalLayout_4">
                <property name="spacing">
+                <number>7</number>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
                 <number>3</number>
                </property>
-               <property name="margin">
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
                 <number>3</number>
                </property>
+               <item>
+                <widget class="QGroupBox" name="groupBoxProjectData">
+                 <property name="title">
+                  <string>1. Projections</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_4">
+                  <property name="margin">
+                   <number>3</number>
+                  </property>
+                  <item row="0" column="0">
+                   <widget class="QPushButton" name="projectPointsButton">
+                    <property name="toolTip">
+                     <string>Project or re-project all active points to the nearest locations on the model surfaces</string>
+                    </property>
+                    <property name="text">
+                     <string>Project Points</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QPushButton" name="projectClearButton">
+                    <property name="toolTip">
+                     <string>Clear all projections and reset the active data points to include all</string>
+                    </property>
+                    <property name="text">
+                     <string>Reset</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
+               <item>
+                <widget class="QGroupBox" name="filterDataGroupBox">
+                 <property name="title">
+                  <string>2. Filter data</string>
+                 </property>
+                 <layout class="QGridLayout" name="gridLayout_3">
+                  <property name="margin">
+                   <number>3</number>
+                  </property>
+                  <property name="spacing">
+                   <number>3</number>
+                  </property>
+                  <item row="0" column="2">
+                   <widget class="QLineEdit" name="filterTopErrorProportionLineEdit">
+                    <property name="toolTip">
+                     <string>Proportion of maximum error (0.0 to 1.0) used to filter data points</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="0">
+                   <widget class="QPushButton" name="filterNonNormalPushButton">
+                    <property name="toolTip">
+                     <string>Remove data points with projections whose dot product with the surface normal is less than the given limit (1.0 is perface alignment, 0.0 is orthogonal)</string>
+                    </property>
+                    <property name="text">
+                     <string>Remove non-normal</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="1">
+                   <widget class="QLabel" name="filterNonNormalProjectionLimitLabel">
+                    <property name="text">
+                     <string>Proj. Limit:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="2" column="2">
+                   <widget class="QLineEdit" name="filterNonNormalProjectionLimitLineEdit">
+                    <property name="toolTip">
+                     <string>Minimum dot product for removing non-normal projections (&lt;=1.0 where 1.0 is perfecly normal)</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="0">
+                   <widget class="QPushButton" name="filterTopErrorPushButton">
+                    <property name="toolTip">
+                     <string>Remove data points with errors greater than the given proportion of the maximum error</string>
+                    </property>
+                    <property name="text">
+                     <string>Remove top error</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item row="0" column="1">
+                   <widget class="QLabel" name="filterTopErrorProportionLabel">
+                    <property name="text">
+                     <string>Proportion:</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </widget>
+               </item>
                <item>
                 <widget class="QGroupBox" name="fitSettingsGroupBox">
                  <property name="sizePolicy">
@@ -358,7 +450,7 @@ QToolBox {
                   </sizepolicy>
                  </property>
                  <property name="title">
-                  <string>Settings</string>
+                  <string>3. Fit</string>
                  </property>
                  <layout class="QVBoxLayout" name="verticalLayout_6">
                   <property name="spacing">
@@ -387,8 +479,11 @@ QToolBox {
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
+                       <property name="toolTip">
+                        <string>Load pre-saved fitting settings</string>
+                       </property>
                        <property name="text">
-                        <string>Load</string>
+                        <string>Load Settings</string>
                        </property>
                       </widget>
                      </item>
@@ -397,8 +492,11 @@ QToolBox {
                        <property name="enabled">
                         <bool>true</bool>
                        </property>
+                       <property name="toolTip">
+                        <string>Save fit settings for recall later or when next run</string>
+                       </property>
                        <property name="text">
-                        <string>Save</string>
+                        <string>Save Settings</string>
                        </property>
                       </widget>
                      </item>
@@ -434,7 +532,28 @@ QToolBox {
                       </widget>
                      </item>
                      <item row="0" column="1">
-                      <widget class="QLineEdit" name="fitStrainPenaltyLineEdit"/>
+                      <widget class="QLineEdit" name="fitStrainPenaltyLineEdit">
+                       <property name="toolTip">
+                        <string>Penalty factor for strains, typically &lt;&lt; 1.0 e.g. 0.001</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="5" column="0" colspan="2">
+                      <widget class="QPushButton" name="fitPerformButton">
+                       <property name="toolTip">
+                        <string>Perform fitting up to at most the set number of iteratations</string>
+                       </property>
+                       <property name="text">
+                        <string>Perform Fit</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="0">
+                      <widget class="QLabel" name="fitMaxIterationsLabel">
+                       <property name="text">
+                        <string>Max. Iterations:</string>
+                       </property>
+                      </widget>
                      </item>
                      <item row="1" column="0">
                       <widget class="QLabel" name="fitEdgeDiscontinuityPenaltyLabel">
@@ -444,19 +563,32 @@ QToolBox {
                       </widget>
                      </item>
                      <item row="1" column="1">
-                      <widget class="QLineEdit" name="fitEdgeDiscontinuityPenaltyLineEdit"/>
+                      <widget class="QLineEdit" name="fitEdgeDiscontinuityPenaltyLineEdit">
+                       <property name="toolTip">
+                        <string>Penalty factor for discontinuity between adjacent elements. Used only with non-C1 continuous coordinate fields</string>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="2" column="1">
+                      <widget class="QSpinBox" name="fitMaxIterationsSpinBox">
+                       <property name="toolTip">
+                        <string>Maximum number of iterations to limit fit time if convergence is slow</string>
+                       </property>
+                       <property name="minimum">
+                        <number>1</number>
+                       </property>
+                       <property name="maximum">
+                        <number>100</number>
+                       </property>
+                       <property name="value">
+                        <number>1</number>
+                       </property>
+                      </widget>
                      </item>
                     </layout>
                    </widget>
                   </item>
                  </layout>
-                </widget>
-               </item>
-               <item>
-                <widget class="QPushButton" name="fitPerformButton">
-                 <property name="text">
-                  <string>Perform Fit</string>
-                 </property>
                 </widget>
                </item>
                <item>
@@ -490,6 +622,9 @@ QToolBox {
               </property>
               <item>
                <widget class="QPushButton" name="viewAllButton">
+                <property name="toolTip">
+                 <string>Adjust the view to see the whole model</string>
+                </property>
                 <property name="text">
                  <string>View All</string>
                 </property>
@@ -502,6 +637,9 @@ QToolBox {
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
+                </property>
+                <property name="toolTip">
+                 <string>Finish this step</string>
                 </property>
                 <property name="text">
                  <string>Done</string>

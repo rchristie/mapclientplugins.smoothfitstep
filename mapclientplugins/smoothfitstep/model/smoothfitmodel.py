@@ -45,6 +45,8 @@ class SmoothfitModel(object):
         self._location = None
         self._zincModelFile = None
         self._zincPointCloudFile = None
+        self._filterTopErrorProportion = 0.9
+        self._filterNonNormalProjectionLimit = 0.99
         self.clear()
 
     def clear(self):
@@ -61,6 +63,7 @@ class SmoothfitModel(object):
         self._dataCoordinateField = None
         self._findMeshLocationField = None
         self._storedMeshLocationField = None
+        self._activeDataPointGroupField = None
         self._dataProjectionCoordinateField = None
         self._dataProjectionDeltaCoordinateField = None
         self._dataProjectionErrorField = None
@@ -142,7 +145,7 @@ class SmoothfitModel(object):
             self._modelOffsetField.assignReal(cache, self._alignSettings['offset'])
         fm.endChange()
         if not self._modelTransformedCoordinateField.isValid():
-            print "Can't create transformed model coordinate field. Is problem 2-D?"
+            print("Can't create transformed model coordinate field. Is problem 2-D?")
         self._alignSettingsChangeCallback()
 
     def loadAlignSettings(self):
@@ -198,7 +201,19 @@ class SmoothfitModel(object):
 # ----- Fit Settings -----
 
     def _resetFitSettings(self):
-        self._fitSettings = dict(strain_penalty = 0.0, edge_discontinuity_penalty = 0.0)
+        self._fitSettings = dict(strain_penalty = 0.0, edge_discontinuity_penalty = 0.0, max_iterations = 1)
+
+    def getFilterTopErrorProportion(self):
+        return self._filterTopErrorProportion
+
+    def setFilterTopErrorProportion(self, value):
+        self._filterTopErrorProportion = value
+
+    def getFilterNonNormalProjectionLimit(self):
+        return self._filterNonNormalProjectionLimit
+
+    def setFilterNonNormalProjectionLimit(self, value):
+        self._filterNonNormalProjectionLimit = value
 
     def setFitSettingsChangeCallback(self, fitSettingsChangeCallback):
         self._fitSettingsChangeCallback = fitSettingsChangeCallback
@@ -215,6 +230,15 @@ class SmoothfitModel(object):
     def setFitEdgeDiscontinuityPenalty(self, penalty):
         self._fitSettings['edge_discontinuity_penalty'] = penalty
 
+    def getFitMaxIterations(self):
+        return self._fitSettings['max_iterations']
+
+    def setFitMaxIterations(self, number):
+        if number < 1:
+            print("max iterations must be positive")
+            return
+        self._fitSettings['max_iterations'] = number
+
     def loadFitSettings(self):
         with open(self._location + '-fit-settings.json', 'r') as f:
             self._fitSettings.update(json.loads(f.read()))
@@ -224,6 +248,18 @@ class SmoothfitModel(object):
         with open(self._location + '-fit-settings.json', 'w') as f:
             f.write(json.dumps(self._fitSettings, default=lambda o: o.__dict__, sort_keys=True, indent=4))
 
+    def getOutputModelFileName(self):
+        return str(self._location) + '-output-model.exfile'
+
+    def writeOutputModel(self):
+        fileName = self.getOutputModelFileName()
+        streamInfo = self._region.createStreaminformationRegion()
+        file = streamInfo.createStreamresourceFile(fileName)
+        streamInfo.setFieldNames(self._modelCoordinateField.getName())
+        streamInfo.setResourceDomainTypes(file, \
+            Field.DOMAIN_TYPE_NODES | Field.DOMAIN_TYPE_MESH1D | Field.DOMAIN_TYPE_MESH2D | Field.DOMAIN_TYPE_MESH3D)
+        result = self._region.write(streamInfo)
+
 # -----
 
     def _getMesh(self):
@@ -231,7 +267,7 @@ class SmoothfitModel(object):
         Return highest dimension mesh
         '''
         fm = self._region.getFieldmodule()
-        for dimension in range(3,1,-1):
+        for dimension in range(3,0,-1):
             mesh = fm.findMeshByDimension(dimension)
             if mesh.getSize() > 0:
                 return mesh
@@ -300,7 +336,7 @@ class SmoothfitModel(object):
             while True:
                 result = self._modelReferenceCoordinateField.setName('reference_' + name + numberString)
                 if result == ZINC_OK:
-                    #print 'Renamed field', name, ' to', 'reference_' + name + numberString
+                    #print('Renamed field', name, ' to', 'reference_' + name + numberString)
                     break
                 number = number + 1
                 numberString = str(number)
@@ -320,6 +356,12 @@ class SmoothfitModel(object):
         minimums, maximums = self._getModelRange()
         self._modelCentre = vectorops.mult(vectorops.add(minimums, maximums), 0.5)
         self._projectSurfaceGroup, self._projectSurfaceElementGroup = self._getProjectSurfaceGroup()
+        fm = self._region.getFieldmodule()
+        datapoints = fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        self._activeDataPointGroupField = fm.createFieldNodeGroup(datapoints)
+        tmpTrue = fm.createFieldConstant([1])
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
+        activeDatapointsGroup.addNodesConditional(tmpTrue)
         self._applyAlignSettings()
         self._showModelGraphics()
 
@@ -398,20 +440,24 @@ class SmoothfitModel(object):
     def clearDataProjections(self):
         if self._storedMeshLocationField is None:
             return
+        self._hideDataProjections()
         fm = self._region.getFieldmodule()
         fm.beginChange()
-        datapoints =  fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        datapoints = fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        tmpTrue = fm.createFieldConstant([1])
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
+        activeDatapointsGroup.addNodesConditional(tmpTrue)
         nodetemplate = datapoints.createNodetemplate()
         nodetemplate.undefineField(self._storedMeshLocationField)
         dataIter = datapoints.createNodeiterator()
         datapoint = dataIter.next()
+        i = 0
         while datapoint.isValid():
-           datapoint.merge(nodetemplate)
-           datapoint = dataIter.next()
+            result = datapoint.merge(nodetemplate)
+            datapoint = dataIter.next()
         self._storedMeshLocationField = None
         self._findMeshLocationField = None
         fm.endChange()
-        self._hideDataProjections()
 
     def calculateDataProjections(self):
         fm = self._region.getFieldmodule()
@@ -431,18 +477,19 @@ class SmoothfitModel(object):
                 self._storedMeshLocationField = None
                 raise ValueError('Failed to create stored mesh location field. Possibly because no mesh?')
         datapoints =  fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
         dimension = mesh.getDimension()
         fm.beginChange()
         self._dataProjectionCoordinateField = fm.createFieldEmbedded(self._modelCoordinateField, self._storedMeshLocationField)
         self._dataProjectionDeltaCoordinateField = fm.createFieldSubtract(self._dataProjectionCoordinateField, self._dataCoordinateField)
         self._dataProjectionErrorField = fm.createFieldMagnitude(self._dataProjectionDeltaCoordinateField)
-        self._dataProjectionMeanErrorField = fm.createFieldNodesetMean(self._dataProjectionErrorField, datapoints)
-        self._dataProjectionMaximumErrorField = fm.createFieldNodesetMaximum(self._dataProjectionErrorField, datapoints)
-        datapoints =  fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        self._dataProjectionMeanErrorField = fm.createFieldNodesetMean(self._dataProjectionErrorField, activeDatapointsGroup)
+        self._dataProjectionMaximumErrorField = fm.createFieldNodesetMaximum(self._dataProjectionErrorField, activeDatapointsGroup)
+
         nodetemplate = datapoints.createNodetemplate()
         nodetemplate.defineField(self._storedMeshLocationField)
         cache = fm.createFieldcache()
-        dataIter = datapoints.createNodeiterator()
+        dataIter = activeDatapointsGroup.createNodeiterator()
         datapoint = dataIter.next()
         while datapoint.isValid():
             cache.setNode(datapoint)
@@ -458,25 +505,26 @@ class SmoothfitModel(object):
         scene = self._region.getScene()
         scene.beginChange()
         graphics = scene.findGraphicsByName('data-projections')
-        scene.removeGraphics(graphics)
+        if graphics.isValid():
+            scene.removeGraphics(graphics)
         graphics = scene.findGraphicsByName('data-mean-error')
-        scene.removeGraphics(graphics)
+        if graphics.isValid():
+            scene.removeGraphics(graphics)
         graphics = scene.findGraphicsByName('data-maximum-error')
-        scene.removeGraphics(graphics)
+        if graphics.isValid():
+            scene.removeGraphics(graphics)
         scene.endChange()
 
     def _autorangeSpectrum(self):
         scene = self._region.getScene()
         spectrummodule = scene.getSpectrummodule()
-        defaultSpectrum = spectrummodule.getDefaultSpectrum()
-        spectrummodule.beginChange()
-        result, minimum, maximum = scene.getSpectrumDataRange(Scenefilter(), defaultSpectrum, 1)
-        spectrumComponent = defaultSpectrum.getFirstSpectrumcomponent()
-        spectrumComponent.setRangeMinimum(minimum)
-        spectrumComponent.setRangeMaximum(maximum)
-        spectrummodule.endChange()
+        spectrum = spectrummodule.getDefaultSpectrum()
+        scenefiltermodule = scene.getScenefiltermodule()
+        scenefilter = scenefiltermodule.getDefaultScenefilter()
+        spectrum.autorange(scene, scenefilter)
 
     def _showDataProjections(self):
+        self._hideDataProjections()
         scene = self._region.getScene()
         scene.beginChange()
         materialmodule = scene.getMaterialmodule()
@@ -487,6 +535,7 @@ class SmoothfitModel(object):
         errorBars.setName('data-projections')
         errorBars.setFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
         errorBars.setCoordinateField(self._dataCoordinateField)
+        errorBars.setSubgroupField(self._activeDataPointGroupField)
         pointAttr = errorBars.getGraphicspointattributes()
         pointAttr.setGlyphShapeType(Glyph.SHAPE_TYPE_LINE)
         pointAttr.setBaseSize([0.0,1.0,1.0])
@@ -522,6 +571,74 @@ class SmoothfitModel(object):
 
         self._autorangeSpectrum()
         scene.endChange()
+
+    def filterTopError(self):
+        if self._storedMeshLocationField is None:
+            print("Can't filter until projections are done")
+            return
+        fm = self._region.getFieldmodule()
+        cache = fm.createFieldcache()
+        result, maxError = self._dataProjectionMaximumErrorField.evaluateReal(cache, 1)
+        if result != ZINC_OK:
+            print("Can't filter top errors as can't evaluate max error: " + result)
+            return
+        if maxError <= 0:
+            print("Can't filter top errors as max error = " + maxError)
+            return
+
+        fm.beginChange()
+        errorLimit = self._filterTopErrorProportion*maxError
+        errorLimitField = fm.createFieldConstant([errorLimit])
+        conditionalField = fm.createFieldGreaterThan(self._dataProjectionErrorField, errorLimitField)
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
+        activeDatapointsGroup.removeNodesConditional(conditionalField)
+        fm.endChange()
+
+        self._autorangeSpectrum()
+
+    def filterNonNormal(self):
+        if self._storedMeshLocationField is None:
+            print("Can't filter until projections are done")
+            return
+        fm = self._region.getFieldmodule()
+        cache = fm.createFieldcache()
+        result, maxError = self._dataProjectionMaximumErrorField.evaluateReal(cache, 1)
+        if result != ZINC_OK:
+            print("Can't filter non-normal as can't evaluate max error: " + result)
+            return
+        if maxError <= 0:
+            print("Can't filter non-normal as max error = " + maxError)
+            return
+        fm.beginChange()
+
+        # don't filter points with tiny errors relative to model range
+        minimums, maximums = self._getModelRange()
+        scale = vectorops.magnitude(vectorops.sub(maximums, minimums))
+        errorLimit = 0.0001*scale
+        errorLimit = maxError*0.001
+        errorLimitField = fm.createFieldConstant([errorLimit])
+        errorGreaterThanLimitField = fm.createFieldGreaterThan(self._dataProjectionErrorField, errorLimitField)
+
+        deriv1 = fm.createFieldDerivative(self._modelCoordinateField, 1)
+        deriv2 = fm.createFieldDerivative(self._modelCoordinateField, 2)
+        cp = fm.createFieldCrossProduct(deriv1, deriv2)
+        normalField = fm.createFieldNormalise(cp)
+        dataNormalField = fm.createFieldEmbedded(normalField, self._storedMeshLocationField)
+
+        normalProjectionLimit = fm.createFieldConstant([self._filterNonNormalProjectionLimit])
+        normalisedProjection = fm.createFieldNormalise(self._dataProjectionDeltaCoordinateField)
+        normalAlignment = fm.createFieldDotProduct(normalisedProjection, dataNormalField)
+        absNormalAlignment = fm.createFieldAbs(normalAlignment)
+        isNonNormalField = fm.createFieldLessThan(absNormalAlignment, normalProjectionLimit)
+
+        falseField = fm.createFieldConstant([0])
+        conditionalField = fm.createFieldIf(errorGreaterThanLimitField, isNonNormalField, falseField)
+
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
+        result = activeDatapointsGroup.removeNodesConditional(conditionalField)
+        fm.endChange()
+
+        self._autorangeSpectrum()
 
     def _getStrainField(self, mesh):
         fm = self._region.getFieldmodule()
@@ -561,9 +678,10 @@ class SmoothfitModel(object):
             raise ValueError('Cannot fit before data point projections are found')
         fm = self._region.getFieldmodule()
         datapoints =  fm.findNodesetByFieldDomainType(Field.DOMAIN_TYPE_DATAPOINTS)
+        activeDatapointsGroup = self._activeDataPointGroupField.getNodesetGroup()
         optimisation = fm.createOptimisation()
         optimisation.setMethod(Optimisation.METHOD_LEAST_SQUARES_QUASI_NEWTON)
-        surfaceFitObjectiveField = fm.createFieldNodesetSumSquares(self._dataProjectionDeltaCoordinateField, datapoints)
+        surfaceFitObjectiveField = fm.createFieldNodesetSumSquares(self._dataProjectionDeltaCoordinateField, activeDatapointsGroup)
         result = optimisation.addObjectiveField(surfaceFitObjectiveField)
         if result != ZINC_OK:
             raise ValueError('Could not set optimisation surface fit objective field')
@@ -578,9 +696,9 @@ class SmoothfitModel(object):
         if self.getFitStrainPenalty() > 0.0:
             strainField = self._getStrainField(mesh)
             if strainField is None:
-                print 'Not supported: Apply Strain Penalty', self.getFitStrainPenalty()
+                print('Not supported: Apply Strain Penalty' + self.getFitStrainPenalty())
             else:
-                #print 'Apply Strain Penalty', self.getFitStrainPenalty()
+                #print('Apply Strain Penalty' + self.getFitStrainPenalty())
                 weightField = fm.createFieldConstant(self.getFitStrainPenalty())
                 weightedStrainField = strainField*weightField
                 weightedStrainFieldIntegralField = fm.createFieldMeshIntegralSquares(weightedStrainField, self._modelReferenceCoordinateField, mesh)
@@ -589,7 +707,7 @@ class SmoothfitModel(object):
                 if result != ZINC_OK:
                     raise ValueError('Could not add optimisation strain penalty objective field')
         if self.getFitEdgeDiscontinuityPenalty() > 0.0:
-            #print 'Apply Edge Discontinuity Penalty', self.getFitEdgeDiscontinuityPenalty()
+            #print('Apply Edge Discontinuity Penalty', self.getFitEdgeDiscontinuityPenalty())
             edgeDiscontinuityField = fm.createFieldEdgeDiscontinuity(self._modelCoordinateField)
             weightField = fm.createFieldConstant(self.getFitEdgeDiscontinuityPenalty())
             weightedEdgeDiscontinuityField = edgeDiscontinuityField*weightField
@@ -603,7 +721,7 @@ class SmoothfitModel(object):
             raise ValueError('Could not set optimisation dependent field')
         if self._projectSurfaceGroup is not None:
             optimisation.setConditionalField(self._modelCoordinateField, self._projectSurfaceGroup)
-        result = optimisation.setAttributeInteger(Optimisation.ATTRIBUTE_MAXIMUM_ITERATIONS, 1)
+        result = optimisation.setAttributeInteger(Optimisation.ATTRIBUTE_MAXIMUM_ITERATIONS, self.getFitMaxIterations())
         if result != ZINC_OK:
             raise ValueError('Could not set optimisation maximum iterations')
         #optimisation.setAttributeInteger(Optimisation.ATTRIBUTE_MAXIMUM_FUNCTION_EVALUATIONS, 100000)

@@ -19,21 +19,21 @@ def transformCoordinates(field, rotationScale, offset, time = 0.0):
     '''
     ncomp = field.getNumberOfComponents()
     if ((ncomp != 2) and (ncomp != 3)):
-        print 'zinc.transformCoordinates: field has invalid number of components'
+        print('zinc.transformCoordinates: field has invalid number of components')
         return False
     if (len(rotationScale) != ncomp) or (len(offset) != ncomp):
-        print 'zinc.transformCoordinates: invalid matrix number of columns or offset size'
+        print('zinc.transformCoordinates: invalid matrix number of columns or offset size')
         return False
     for matRow in rotationScale:
         if len(matRow) != ncomp:
-            print 'zinc.transformCoordinates: invalid matrix number of columns'
+            print('zinc.transformCoordinates: invalid matrix number of columns')
             return False
     if (field.getCoordinateSystemType() != Field.COORDINATE_SYSTEM_TYPE_RECTANGULAR_CARTESIAN):
-        print 'zinc.transformCoordinates: field is not rectangular cartesian'
+        print('zinc.transformCoordinates: field is not rectangular cartesian')
         return False
     feField = field.castFiniteElement()
     if not feField.isValid():
-        print 'zinc.transformCoordinates: field is not finite element field type'
+        print('zinc.transformCoordinates: field is not finite element field type')
         return False
     success = True
     fm = field.getFieldmodule()
@@ -64,5 +64,5 @@ def transformCoordinates(field, rotationScale, offset, time = 0.0):
         node = nodeIter.next()
     fm.endChange()
     if not success:
-        print 'zinc.transformCoordinates: failed to get/set some values'
+        print('zinc.transformCoordinates: failed to get/set some values')
     return success

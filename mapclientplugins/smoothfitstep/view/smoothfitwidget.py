@@ -55,10 +55,15 @@ class SmoothfitWidget(QtGui.QWidget):
         self._ui.alignAutoCentreButton.clicked.connect(self._alignAutoCentreButtonClicked)
         self._ui.projectClearButton.clicked.connect(self._projectClearButtonClicked)
         self._ui.projectPointsButton.clicked.connect(self._projectPointsButtonClicked)
+        self._ui.filterTopErrorPushButton.clicked.connect(self._filterTopErrorClicked)
+        self._ui.filterTopErrorProportionLineEdit.editingFinished.connect(self._filterTopErrorProportionEntered)
+        self._ui.filterNonNormalPushButton.clicked.connect(self._filterNonNormalClicked)
+        self._ui.filterNonNormalProjectionLimitLineEdit.editingFinished.connect(self._filterNonNormalProjectionLimitEntered)
         self._ui.fitLoadButton.clicked.connect(self._fitLoadButtonClicked)
         self._ui.fitSaveButton.clicked.connect(self._fitSaveButtonClicked)
         self._ui.fitStrainPenaltyLineEdit.editingFinished.connect(self._fitStrainPenaltyEntered)
         self._ui.fitEdgeDiscontinuityPenaltyLineEdit.editingFinished.connect(self._fitEdgeDiscontinuityPenaltyEntered)
+        self._ui.fitMaxIterationsSpinBox.valueChanged.connect(self._fitMaxIterationsValueChanged)
         self._ui.fitPerformButton.clicked.connect(self._fitPerformButtonClicked)
 
     def clear(self):
@@ -87,10 +92,22 @@ class SmoothfitWidget(QtGui.QWidget):
         try:
             value = float(widget.text())
             if value < 0.0:
-                raise
+                raise ValueError("Value must be >= 0")
             newValue = value
         except:
-            print 'Invalid non-negative real value'
+            print("Value must be >= 0")
+        self._displayReal(widget, newValue)
+        return newValue
+
+    def _parseRealZeroToOne(self, widget, currentValue):
+        newValue = currentValue
+        try:
+            value = float(widget.text())
+            if (value < 0.0) or (value > 1.0):
+                raise ValueError("Value must be from 0 to 1")
+            newValue = value
+        except:
+            print("Value must be from 0 to 1")
         self._displayReal(widget, newValue)
         return newValue
 
@@ -122,13 +139,17 @@ class SmoothfitWidget(QtGui.QWidget):
         self._displayVector(self._ui.alignOffsetLineEdit, self._model.getAlignOffset())
 
     def _fitSettingsDisplay(self):
+        self._displayReal(self._ui.filterTopErrorProportionLineEdit, self._model.getFilterTopErrorProportion())
+        self._displayReal(self._ui.filterNonNormalProjectionLimitLineEdit, self._model.getFilterNonNormalProjectionLimit())
         self._displayReal(self._ui.fitStrainPenaltyLineEdit, self._model.getFitStrainPenalty())
         self._displayReal(self._ui.fitEdgeDiscontinuityPenaltyLineEdit, self._model.getFitEdgeDiscontinuityPenalty())
+        self._ui.fitMaxIterationsSpinBox.setValue(self._model.getFitMaxIterations())
 
     def registerDoneExecution(self, callback):
         self._callback = callback
 
     def _doneButtonClicked(self):
+        self._model.writeOutputModel()
         #sceneviewer = self._ui.sceneviewerWidget.getSceneviewer()
         #sceneviewer.setScene(Scene())
         self._ui.dockWidget.setFloating(False)
@@ -157,7 +178,7 @@ class SmoothfitWidget(QtGui.QWidget):
             eulerAngles = self._parseVector3(self._ui.alignRotationLineEdit)
             self._model.setAlignEulerAngles(eulerAngles)
         except:
-            print "Invalid model rotation Euler angles entered"
+            print("Invalid model rotation Euler angles entered")
             self._alignSettingsDisplay()
 
     def _alignOffsetEntered(self):
@@ -165,7 +186,7 @@ class SmoothfitWidget(QtGui.QWidget):
             offset = self._parseVector3(self._ui.alignOffsetLineEdit)
             self._model.setAlignOffset(offset)
         except:
-            print "Invalid model offset entered"
+            print("Invalid model offset entered")
             self._alignSettingsDisplay()
 
     def _alignResetButtonClicked(self):
@@ -180,6 +201,18 @@ class SmoothfitWidget(QtGui.QWidget):
     def _projectPointsButtonClicked(self):
         self._model.calculateDataProjections()
 
+    def _filterTopErrorClicked(self):
+        self._model.filterTopError()
+
+    def _filterTopErrorProportionEntered(self):
+        self._model.setFilterTopErrorProportion(self._parseRealZeroToOne(self._ui.filterTopErrorProportionLineEdit, self._model.getFilterTopErrorProportion()))
+
+    def _filterNonNormalClicked(self):
+        self._model.filterNonNormal()
+
+    def _filterNonNormalProjectionLimitEntered(self):
+        self._model.setFilterNonNormalProjectionLimit(self._parseRealZeroToOne(self._ui.filterNonNormalProjectionLimitLineEdit, self._model.getFilterNonNormalProjectionLimit()))
+
     def _fitLoadButtonClicked(self):
         self._model.loadFitSettings()
 
@@ -191,6 +224,9 @@ class SmoothfitWidget(QtGui.QWidget):
 
     def _fitEdgeDiscontinuityPenaltyEntered(self):
         self._model.setFitEdgeDiscontinuityPenalty(self._parseRealNonNegative(self._ui.fitEdgeDiscontinuityPenaltyLineEdit, self._model.getFitEdgeDiscontinuityPenalty()))
+
+    def _fitMaxIterationsValueChanged(self, value):
+        self._model.setFitMaxIterations(value)
 
     def _fitPerformButtonClicked(self):
         self._model.fit()

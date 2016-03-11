@@ -33,7 +33,7 @@ class smoothfitStep(WorkflowStepMountPoint):
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#file_location'))
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#provides',
-                      'http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel'))
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#file_location'))
         # Port data:
         self._inputZincModelFile = None # http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel
         self._inputZincPointCloudFile = None # http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud
@@ -80,6 +80,7 @@ class smoothfitStep(WorkflowStepMountPoint):
         '''
         Get outputs, called by mapclient framework.
         '''
+        self._outputZincModel = self._view._model.getOutputModelFileName()
         return self._outputZincModel # http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel
 
     def configure(self):
