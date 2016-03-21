@@ -45,6 +45,7 @@ class SmoothfitModel(object):
         self._location = None
         self._zincModelFile = None
         self._zincPointCloudFile = None
+        self._pointCloudData = None
         self._filterTopErrorProportion = 0.9
         self._filterNonNormalProjectionLimit = 0.99
         self.clear()
@@ -84,10 +85,13 @@ class SmoothfitModel(object):
         return self._region
 
     def setZincModelFile(self, zincModelFile):
-        self._zincModelFile = zincModelFile.encode('ASCII')
+        self._zincModelFile = zincModelFile
 
     def setZincPointCloudFile(self, zincPointCloudFile):
-        self._zincPointCloudFile = zincPointCloudFile.encode('ASCII')
+        self._zincPointCloudFile = zincPointCloudFile
+
+    def setPointCloudData(self, pointCloudData):
+        self._pointCloudData = pointCloudData
 
     def initialise(self):
         self._region = self._context.createRegion()
@@ -255,7 +259,8 @@ class SmoothfitModel(object):
         fileName = self.getOutputModelFileName()
         streamInfo = self._region.createStreaminformationRegion()
         file = streamInfo.createStreamresourceFile(fileName)
-        streamInfo.setFieldNames(self._modelCoordinateField.getName())
+        coord_field_name = self._modelCoordinateField.getName()
+        streamInfo.setFieldNames(coord_field_name)
         streamInfo.setResourceDomainTypes(file, \
             Field.DOMAIN_TYPE_NODES | Field.DOMAIN_TYPE_MESH1D | Field.DOMAIN_TYPE_MESH2D | Field.DOMAIN_TYPE_MESH3D)
         result = self._region.write(streamInfo)
@@ -341,13 +346,18 @@ class SmoothfitModel(object):
                 number = number + 1
                 numberString = str(number)
             # read data cloud
-            sir = self._region.createStreaminformationRegion()
-            pointCloudResource = sir.createStreamresourceFile(self._zincPointCloudFile)
-            sir.setResourceDomainTypes(pointCloudResource, Field.DOMAIN_TYPE_DATAPOINTS)
-            result = self._region.read(sir)
-            if result != ZINC_OK:
-                raise ValueError('Failed to read point cloud')
-            self._dataCoordinateField = self._getDataCoordinateField()
+            if self._zincPointCloudFile:
+                sir = self._region.createStreaminformationRegion()
+                pointCloudResource = sir.createStreamresourceFile(self._zincPointCloudFile)
+                sir.setResourceDomainTypes(pointCloudResource, Field.DOMAIN_TYPE_DATAPOINTS)
+                result = self._region.read(sir)
+                if result != ZINC_OK:
+                    raise ValueError('Failed to read point cloud')
+                self._dataCoordinateField = self._getDataCoordinateField()
+            elif self._pointCloudData:
+                self._dataCoordinateField = createFiniteElementField(self._region, field_name='data_coordinates')
+                self._createDataPoints(self._pointCloudData)
+
         result = self._region.readFile(self._zincModelFile)
         if result != ZINC_OK:
             raise ValueError('Failed to read model')
@@ -364,6 +374,29 @@ class SmoothfitModel(object):
         activeDatapointsGroup.addNodesConditional(tmpTrue)
         self._applyAlignSettings()
         self._showModelGraphics()
+
+    def _createDataPoints(self, data_points):
+        for location in data_points:
+            self._createNodeAtLocation(location)
+
+    def _createNodeAtLocation(self, location, domain_type=Field.DOMAIN_TYPE_DATAPOINTS, node_id=-1):
+        '''
+        Creates a node at the given location without
+        adding it to the current selection.
+        '''
+        fieldmodule = self._region.getFieldmodule()
+        fieldmodule.beginChange()
+
+        nodeset = fieldmodule.findNodesetByFieldDomainType(domain_type)
+        template = nodeset.createNodetemplate()
+        template.defineField(self._dataCoordinateField)
+        node = nodeset.createNode(node_id, template)
+        fieldcache = fieldmodule.createFieldcache()
+        fieldcache.setNode(node)
+        self._dataCoordinateField.assignReal(fieldcache, location)
+        fieldmodule.endChange()
+
+        return node
 
     def _getNodesetMinimumMaximum(self, nodeset, field):
         fm = field.getFieldmodule()
@@ -730,3 +763,26 @@ class SmoothfitModel(object):
             raise ValueError('Optimisation failed with result ' + str(result))
         self._autorangeSpectrum()
         #self._showStrains()
+
+
+def createFiniteElementField(region, field_name='coordinates'):
+    '''
+    Create a finite element field of three dimensions
+    called 'coordinates' and set the coordinate type true.
+    '''
+    field_module = region.getFieldmodule()
+    field_module.beginChange()
+
+    # Create a finite element field with 3 components to represent 3 dimensions
+    finite_element_field = field_module.createFieldFiniteElement(3)
+
+    # Set the name of the field
+    finite_element_field.setName(field_name)
+    # Set the attribute is managed to 1 so the field module will manage the field for us
+
+    finite_element_field.setManaged(True)
+    finite_element_field.setTypeCoordinate(True)
+    field_module.endChange()
+
+    return finite_element_field
+

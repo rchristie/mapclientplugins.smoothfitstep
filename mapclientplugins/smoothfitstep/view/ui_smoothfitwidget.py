@@ -369,4 +369,4 @@ class Ui_SmoothfitWidget(object):
         self.doneButton.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Finish this step", None, QtGui.QApplication.UnicodeUTF8))
         self.doneButton.setText(QtGui.QApplication.translate("SmoothfitWidget", "Done", None, QtGui.QApplication.UnicodeUTF8))
 
-from alignmentsceneviewerwidget import AlignmentSceneviewerWidget
+from .alignmentsceneviewerwidget import AlignmentSceneviewerWidget

@@ -32,11 +32,15 @@ class smoothfitStep(WorkflowStepMountPoint):
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#file_location'))
         self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#uses',
+                      'http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud'))
+        self.addPort(('http://physiomeproject.org/workflow/1.0/rdf-schema#port',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#provides',
                       'http://physiomeproject.org/workflow/1.0/rdf-schema#file_location'))
         # Port data:
         self._inputZincModelFile = None # http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel
-        self._inputZincPointCloudFile = None # http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud
+        self._inputZincPointCloudFile = None # http://physiomeproject.org/workflow/1.0/rdf-schema#file_location
+        self._inputPointCloudData = None # http://physiomeproject.org/workflow/1.0/rdf-schema#pointcloud
         self._outputZincModel = None # http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel
         # Config:
         self._config = {}
@@ -63,6 +67,8 @@ class smoothfitStep(WorkflowStepMountPoint):
             smoothfitModel.setZincModelFile(self._inputZincModelFile)
         if self._inputZincPointCloudFile is not None:
             smoothfitModel.setZincPointCloudFile(self._inputZincPointCloudFile)
+        if self._inputPointCloudData is not None:
+            smoothfitModel.setPointCloudData(self._inputPointCloudData)
         self._view.initialise()
         self._view.setEnableSettingsSave(self._config['enable_settings_save'])
         self._setCurrentWidget(self._view)
@@ -75,6 +81,8 @@ class smoothfitStep(WorkflowStepMountPoint):
             self._inputZincModelFile = dataIn # http://physiomeproject.org/workflow/1.0/rdf-schema#zincmodel
         elif index == 1:
             self._inputZincPointCloudFile = dataIn # http://physiomeproject.org/workflow/1.0/rdf-schema#zincpointcloud
+        elif index == 2:
+            self._inputPointCloudData = dataIn
 
     def getPortData(self, index):
         '''
