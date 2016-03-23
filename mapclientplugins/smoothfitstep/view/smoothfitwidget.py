@@ -84,7 +84,7 @@ class SmoothfitWidget(QtGui.QWidget):
         return self._model
 
     def _displayReal(self, widget, value):
-        newText = unicode('{:.4g}'.format(value))
+        newText = '{:.4g}'.format(value)
         widget.setText(newText)
 
     def _parseRealNonNegative(self, widget, currentValue):
