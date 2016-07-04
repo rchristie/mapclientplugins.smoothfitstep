@@ -100,17 +100,10 @@ class SmoothfitModel(object):
 # ----- Align Settings -----
 
     def _resetAlignSettings(self):
-        self._alignSettings = dict(euler_angles = [0.0, 0.0, 0.0], scale = 1.0, offset = [0.0, 0.0, 0.0])
+        self._alignSettings = dict(euler_angles=[0.0, 0.0, 0.0], scale=1.0, offset=[0.0, 0.0, 0.0], mirror=False)
 
     def setAlignSettingsChangeCallback(self, alignSettingsChangeCallback):
         self._alignSettingsChangeCallback = alignSettingsChangeCallback
-
-    def getAlignScale(self):
-        return self._alignSettings['scale']
-
-    def setAlignScale(self, scale):
-        self._alignSettings['scale'] = scale
-        self._applyAlignSettings()
 
     def getAlignEulerAngles(self):
         return self._alignSettings['euler_angles']
@@ -120,6 +113,13 @@ class SmoothfitModel(object):
             self._alignSettings['euler_angles'] = eulerAngles
             self._applyAlignSettings()
 
+    def isAlignMirror(self):
+        return self._alignSettings['mirror']
+
+    def setAlignMirror(self, mirror):
+        self._alignSettings['mirror'] = mirror
+        self._applyAlignSettings()
+
     def getAlignOffset(self):
         return self._alignSettings['offset']
 
@@ -128,13 +128,23 @@ class SmoothfitModel(object):
             self._alignSettings['offset'] = offset
             self._applyAlignSettings()
 
+    def getAlignScale(self):
+        return self._alignSettings['scale']
+
+    def setAlignScale(self, scale):
+        self._alignSettings['scale'] = scale
+        self._applyAlignSettings()
+
     def _applyAlignSettings(self):
         rot = vectorops.eulerToRotationMatrix3(self._alignSettings['euler_angles'])
         scale = self._alignSettings['scale']
+        xScale = scale
+        if self.isAlignMirror():
+            xScale = -scale
         rotationScale = [
-            rot[0][0]*scale, rot[0][1]*scale, rot[0][2]*scale,
-            rot[1][0]*scale, rot[1][1]*scale, rot[1][2]*scale,
-            rot[2][0]*scale, rot[2][1]*scale, rot[2][2]*scale]
+            rot[0][0]*xScale, rot[0][1]*xScale, rot[0][2]*xScale,
+            rot[1][0]*scale,  rot[1][1]*scale,  rot[1][2]*scale,
+            rot[2][0]*scale,  rot[2][1]*scale,  rot[2][2]*scale]
         fm = self._region.getFieldmodule()
         fm.beginChange()
         if self._modelTransformedCoordinateField is None:
@@ -145,7 +155,7 @@ class SmoothfitModel(object):
             self._modelTransformedCoordinateField = fm.createFieldAdd(temp1, self._modelOffsetField)
         else:
             cache = fm.createFieldcache()
-            self._modelRotationScaleField.assignReal(cache, rotationScale);
+            self._modelRotationScaleField.assignReal(cache, rotationScale)
             self._modelOffsetField.assignReal(cache, self._alignSettings['offset'])
         fm.endChange()
         if not self._modelTransformedCoordinateField.isValid():
@@ -154,6 +164,7 @@ class SmoothfitModel(object):
 
     def loadAlignSettings(self):
         with open(self._location + '-align-settings.json', 'r') as f:
+            self._alignSettings['mirror'] = False  # for compatibility with old saved settings
             self._alignSettings.update(json.loads(f.read()))
         self._applyAlignSettings()
 
@@ -173,7 +184,11 @@ class SmoothfitModel(object):
         quat = vectorops.axisAngleToQuaternion(axis, angle)
         mat1 = vectorops.rotmx(quat)
         mat2 = vectorops.eulerToRotationMatrix3(self._alignSettings['euler_angles'])
+        if self.isAlignMirror():
+            mat2[0] = vectorops.mult(mat2[0], -1.0)
         newmat = vectorops.matrixmult(mat1, mat2)
+        if self.isAlignMirror():
+            newmat[0] = vectorops.mult(newmat[0], -1.0)
         self._alignSettings['euler_angles'] = vectorops.rotationMatrix3ToEuler(newmat)
         self._applyAlignSettings()
 
@@ -199,7 +214,10 @@ class SmoothfitModel(object):
             return
         self._isStateAlign = False
         rotationScale = vectorops.matrixconstantmult(vectorops.eulerToRotationMatrix3(self._alignSettings['euler_angles']), self._alignSettings['scale'])
+        if self.isAlignMirror():
+            rotationScale[0] = vectorops.mult(rotationScale[0], -1.0)
         zincutils.transformCoordinates(self._modelCoordinateField, rotationScale, self._alignSettings['offset'])
+        zincutils.copyNodalParameters(self._modelCoordinateField, self._modelReferenceCoordinateField)
         self._setModelGraphicsCoordinateField(self._modelCoordinateField)
 
 # ----- Fit Settings -----

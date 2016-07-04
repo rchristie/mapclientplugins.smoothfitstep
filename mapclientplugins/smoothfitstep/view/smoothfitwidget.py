@@ -51,6 +51,7 @@ class SmoothfitWidget(QtGui.QWidget):
         self._ui.alignScaleLineEdit.editingFinished.connect(self._alignScaleEntered)
         self._ui.alignRotationLineEdit.editingFinished.connect(self._alignRotationEntered)
         self._ui.alignOffsetLineEdit.editingFinished.connect(self._alignOffsetEntered)
+        self._ui.alignMirrorCheckBox.clicked.connect(self._alignMirrorClicked)
         self._ui.alignResetButton.clicked.connect(self._alignResetButtonClicked)
         self._ui.alignAutoCentreButton.clicked.connect(self._alignAutoCentreButtonClicked)
         self._ui.projectClearButton.clicked.connect(self._projectClearButtonClicked)
@@ -137,6 +138,8 @@ class SmoothfitWidget(QtGui.QWidget):
         self._displayReal(self._ui.alignScaleLineEdit, self._model.getAlignScale())
         self._displayVector(self._ui.alignRotationLineEdit, self._model.getAlignEulerAngles())
         self._displayVector(self._ui.alignOffsetLineEdit, self._model.getAlignOffset())
+        self._ui.alignMirrorCheckBox.setCheckState(
+            QtCore.Qt.Checked if self._model.isAlignMirror() else QtCore.Qt.Unchecked)
 
     def _fitSettingsDisplay(self):
         self._displayReal(self._ui.filterTopErrorProportionLineEdit, self._model.getFilterTopErrorProportion())
@@ -188,6 +191,10 @@ class SmoothfitWidget(QtGui.QWidget):
         except:
             print("Invalid model offset entered")
             self._alignSettingsDisplay()
+
+    def _alignMirrorClicked(self):
+        state = self._ui.alignMirrorCheckBox.checkState()
+        self._model.setAlignMirror(state == QtCore.Qt.Checked)
 
     def _alignResetButtonClicked(self):
         self._model.resetAlignment()

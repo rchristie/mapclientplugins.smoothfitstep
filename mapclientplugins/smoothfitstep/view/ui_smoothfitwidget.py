@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file '../qt/smoothfitwidget.ui'
 #
-# Created: Fri Mar 11 10:30:53 2016
+# Created: Fri Jul 01 14:05:17 2016
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -150,6 +150,9 @@ class Ui_SmoothfitWidget(object):
         self.alignOffsetLineEdit = QtGui.QLineEdit(self.alignScaleWidgets)
         self.alignOffsetLineEdit.setObjectName("alignOffsetLineEdit")
         self.formLayout.setWidget(4, QtGui.QFormLayout.FieldRole, self.alignOffsetLineEdit)
+        self.alignMirrorCheckBox = QtGui.QCheckBox(self.alignScaleWidgets)
+        self.alignMirrorCheckBox.setObjectName("alignMirrorCheckBox")
+        self.formLayout.setWidget(5, QtGui.QFormLayout.LabelRole, self.alignMirrorCheckBox)
         self.verticalLayout_7.addWidget(self.alignScaleWidgets)
         self.verticalLayout_5.addWidget(self.alignSettingsGroupBox)
         self.alignResetButton = QtGui.QPushButton(self.alignPage)
@@ -162,7 +165,7 @@ class Ui_SmoothfitWidget(object):
         self.verticalLayout_5.addItem(spacerItem)
         self.toolBox.addItem(self.alignPage, "")
         self.fitPage = QtGui.QWidget()
-        self.fitPage.setGeometry(QtCore.QRect(0, 0, 340, 510))
+        self.fitPage.setGeometry(QtCore.QRect(0, 0, 261, 332))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -331,6 +334,7 @@ class Ui_SmoothfitWidget(object):
         self.alignRotationLineEdit.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Rotation of the model as 3 Euler angles", None, QtGui.QApplication.UnicodeUTF8))
         self.alignOffsetLabel.setText(QtGui.QApplication.translate("SmoothfitWidget", "Offset:", None, QtGui.QApplication.UnicodeUTF8))
         self.alignOffsetLineEdit.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Offset of the model in x, y ,z", None, QtGui.QApplication.UnicodeUTF8))
+        self.alignMirrorCheckBox.setText(QtGui.QApplication.translate("SmoothfitWidget", "Mirror", None, QtGui.QApplication.UnicodeUTF8))
         self.alignResetButton.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Reset the alignment settings", None, QtGui.QApplication.UnicodeUTF8))
         self.alignResetButton.setText(QtGui.QApplication.translate("SmoothfitWidget", "Reset", None, QtGui.QApplication.UnicodeUTF8))
         self.alignAutoCentreButton.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Offset the model to the centre of the data points. May need to click View All afterwards.", None, QtGui.QApplication.UnicodeUTF8))

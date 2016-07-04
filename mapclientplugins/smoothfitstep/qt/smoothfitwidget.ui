@@ -271,6 +271,13 @@ QToolBox {
                        </property>
                       </widget>
                      </item>
+                     <item row="5" column="0">
+                      <widget class="QCheckBox" name="alignMirrorCheckBox">
+                       <property name="text">
+                        <string>Mirror</string>
+                       </property>
+                      </widget>
+                     </item>
                     </layout>
                    </widget>
                   </item>
@@ -317,8 +324,8 @@ QToolBox {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>340</width>
-                <height>510</height>
+                <width>261</width>
+                <height>332</height>
                </rect>
               </property>
               <property name="sizePolicy">
