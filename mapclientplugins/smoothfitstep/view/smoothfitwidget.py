@@ -152,6 +152,7 @@ class SmoothfitWidget(QtGui.QWidget):
         self._callback = callback
 
     def _doneButtonClicked(self):
+        self._model.setStatePostAlign() # ensure model is transformed; does nothing if not in align tab
         self._model.writeOutputModel()
         #sceneviewer = self._ui.sceneviewerWidget.getSceneviewer()
         #sceneviewer.setScene(Scene())
