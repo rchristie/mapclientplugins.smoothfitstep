@@ -63,6 +63,7 @@ class SmoothfitWidget(QtGui.QWidget):
         self._ui.fitLoadButton.clicked.connect(self._fitLoadButtonClicked)
         self._ui.fitSaveButton.clicked.connect(self._fitSaveButtonClicked)
         self._ui.fitStrainPenaltyLineEdit.editingFinished.connect(self._fitStrainPenaltyEntered)
+        self._ui.fitCurvaturePenaltyLineEdit.editingFinished.connect(self._fitCurvaturePenaltyEntered)
         self._ui.fitEdgeDiscontinuityPenaltyLineEdit.editingFinished.connect(self._fitEdgeDiscontinuityPenaltyEntered)
         self._ui.fitMaxIterationsSpinBox.valueChanged.connect(self._fitMaxIterationsValueChanged)
         self._ui.fitPerformButton.clicked.connect(self._fitPerformButtonClicked)
@@ -75,11 +76,18 @@ class SmoothfitWidget(QtGui.QWidget):
         self._model.initialise()
         self._scene = self._model.getRegion().getScene()
         self._setupUi()
+        if self._model.isStateAlign:
+            self._ui.toolBox.setCurrentIndex(0)
+        else:
+            self._ui.toolBox.setCurrentIndex(1)
         self._graphicsInitialized()
 
     def setEnableSettingsSave(self, isEnabled):
         self._ui.alignSaveButton.setEnabled(isEnabled)
         self._ui.fitSaveButton.setEnabled(isEnabled)
+
+    def setEnableLoadPreviousSolution(self, isEnabled):
+        self._model._enableloadPreviousSolution = isEnabled
 
     def getModel(self):
         return self._model
@@ -145,6 +153,7 @@ class SmoothfitWidget(QtGui.QWidget):
         self._displayReal(self._ui.filterTopErrorProportionLineEdit, self._model.getFilterTopErrorProportion())
         self._displayReal(self._ui.filterNonNormalProjectionLimitLineEdit, self._model.getFilterNonNormalProjectionLimit())
         self._displayReal(self._ui.fitStrainPenaltyLineEdit, self._model.getFitStrainPenalty())
+        self._displayReal(self._ui.fitCurvaturePenaltyLineEdit, self._model.getFitCurvaturePenalty())
         self._displayReal(self._ui.fitEdgeDiscontinuityPenaltyLineEdit, self._model.getFitEdgeDiscontinuityPenalty())
         self._ui.fitMaxIterationsSpinBox.setValue(self._model.getFitMaxIterations())
 
@@ -164,6 +173,7 @@ class SmoothfitWidget(QtGui.QWidget):
 
     def _toolBoxPageChange(self, page):
         if page == 0:
+            self._model.load()
             self._model.setStateAlign()
         else:
             self._model.setStatePostAlign()
@@ -229,6 +239,9 @@ class SmoothfitWidget(QtGui.QWidget):
 
     def _fitStrainPenaltyEntered(self):
         self._model.setFitStrainPenalty(self._parseRealNonNegative(self._ui.fitStrainPenaltyLineEdit, self._model.getFitStrainPenalty()))
+
+    def _fitCurvaturePenaltyEntered(self):
+        self._model.setFitCurvaturePenalty(self._parseRealNonNegative(self._ui.fitCurvaturePenaltyLineEdit, self._model.getFitCurvaturePenalty()))
 
     def _fitEdgeDiscontinuityPenaltyEntered(self):
         self._model.setFitEdgeDiscontinuityPenalty(self._parseRealNonNegative(self._ui.fitEdgeDiscontinuityPenaltyLineEdit, self._model.getFitEdgeDiscontinuityPenalty()))

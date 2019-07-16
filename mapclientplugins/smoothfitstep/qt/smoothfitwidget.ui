@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>833</width>
-    <height>632</height>
+    <width>1112</width>
+    <height>1046</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -36,8 +36,8 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>346</width>
-       <height>135</height>
+       <width>574</width>
+       <height>183</height>
       </size>
      </property>
      <property name="features">
@@ -79,8 +79,8 @@
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>344</width>
-            <height>604</height>
+            <width>572</width>
+            <height>1001</height>
            </rect>
           </property>
           <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -116,7 +116,7 @@ QToolBox {
 }</string>
              </property>
              <property name="currentIndex">
-              <number>0</number>
+              <number>1</number>
              </property>
              <property name="tabSpacing">
               <number>2</number>
@@ -126,8 +126,8 @@ QToolBox {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>340</width>
-                <height>510</height>
+                <width>568</width>
+                <height>867</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -324,8 +324,8 @@ QToolBox {
                <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>261</width>
-                <height>332</height>
+                <width>568</width>
+                <height>867</height>
                </rect>
               </property>
               <property name="sizePolicy">
@@ -545,7 +545,7 @@ QToolBox {
                        </property>
                       </widget>
                      </item>
-                     <item row="5" column="0" colspan="2">
+                     <item row="6" column="0" colspan="2">
                       <widget class="QPushButton" name="fitPerformButton">
                        <property name="toolTip">
                         <string>Perform fitting up to at most the set number of iteratations</string>
@@ -555,28 +555,28 @@ QToolBox {
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="0">
+                     <item row="3" column="0">
                       <widget class="QLabel" name="fitMaxIterationsLabel">
                        <property name="text">
                         <string>Max. Iterations:</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="0">
+                     <item row="2" column="0">
                       <widget class="QLabel" name="fitEdgeDiscontinuityPenaltyLabel">
                        <property name="text">
                         <string>Edge Discontinuity Pen.:</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="1" column="1">
+                     <item row="2" column="1">
                       <widget class="QLineEdit" name="fitEdgeDiscontinuityPenaltyLineEdit">
                        <property name="toolTip">
                         <string>Penalty factor for discontinuity between adjacent elements. Used only with non-C1 continuous coordinate fields</string>
                        </property>
                       </widget>
                      </item>
-                     <item row="2" column="1">
+                     <item row="3" column="1">
                       <widget class="QSpinBox" name="fitMaxIterationsSpinBox">
                        <property name="toolTip">
                         <string>Maximum number of iterations to limit fit time if convergence is slow</string>
@@ -589,6 +589,16 @@ QToolBox {
                        </property>
                        <property name="value">
                         <number>1</number>
+                       </property>
+                      </widget>
+                     </item>
+                     <item row="1" column="1">
+                      <widget class="QLineEdit" name="fitCurvaturePenaltyLineEdit"/>
+                     </item>
+                     <item row="1" column="0">
+                      <widget class="QLabel" name="fitCurvaturePenaltyLabel">
+                       <property name="text">
+                        <string>Curvature Penalty:</string>
                        </property>
                       </widget>
                      </item>

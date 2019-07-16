@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>418</width>
+    <width>444</width>
     <height>303</height>
    </rect>
   </property>
@@ -34,6 +34,16 @@
        <widget class="QCheckBox" name="enableSettingsSaveCheckBox">
         <property name="text">
          <string>Enable Settings Save</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="loadPreviousSolutionCheckBox">
+        <property name="enabled">
+         <bool>false</bool>
+        </property>
+        <property name="text">
+         <string>Load previous solution</string>
         </property>
        </widget>
       </item>

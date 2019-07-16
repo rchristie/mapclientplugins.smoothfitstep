@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'qt\configuredialog.ui'
+# Form implementation generated from reading ui file 'mapclientplugins\smoothfitstep\qt\configuredialog.ui'
 #
-# Created: Fri Jul 24 16:41:58 2015
-#      by: pyside-uic 0.2.15 running on PySide 1.2.1
+# Created: Tue Jul 16 11:41:45 2019
+#      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_ConfigureDialog(object):
     def setupUi(self, ConfigureDialog):
         ConfigureDialog.setObjectName("ConfigureDialog")
-        ConfigureDialog.resize(418, 303)
+        ConfigureDialog.resize(444, 303)
         self.gridLayout = QtGui.QGridLayout(ConfigureDialog)
         self.gridLayout.setObjectName("gridLayout")
         self.configGroupBox = QtGui.QGroupBox(ConfigureDialog)
@@ -29,6 +29,10 @@ class Ui_ConfigureDialog(object):
         self.enableSettingsSaveCheckBox = QtGui.QCheckBox(self.configGroupBox)
         self.enableSettingsSaveCheckBox.setObjectName("enableSettingsSaveCheckBox")
         self.formLayout.setWidget(1, QtGui.QFormLayout.LabelRole, self.enableSettingsSaveCheckBox)
+        self.loadPreviousSolutionCheckBox = QtGui.QCheckBox(self.configGroupBox)
+        self.loadPreviousSolutionCheckBox.setEnabled(False)
+        self.loadPreviousSolutionCheckBox.setObjectName("loadPreviousSolutionCheckBox")
+        self.formLayout.setWidget(2, QtGui.QFormLayout.LabelRole, self.loadPreviousSolutionCheckBox)
         self.gridLayout.addWidget(self.configGroupBox, 0, 0, 1, 1)
         self.buttonBox = QtGui.QDialogButtonBox(ConfigureDialog)
         self.buttonBox.setOrientation(QtCore.Qt.Horizontal)
@@ -45,4 +49,5 @@ class Ui_ConfigureDialog(object):
         ConfigureDialog.setWindowTitle(QtGui.QApplication.translate("ConfigureDialog", "ConfigureDialog", None, QtGui.QApplication.UnicodeUTF8))
         self.label0.setText(QtGui.QApplication.translate("ConfigureDialog", "identifier:  ", None, QtGui.QApplication.UnicodeUTF8))
         self.enableSettingsSaveCheckBox.setText(QtGui.QApplication.translate("ConfigureDialog", "Enable Settings Save", None, QtGui.QApplication.UnicodeUTF8))
+        self.loadPreviousSolutionCheckBox.setText(QtGui.QApplication.translate("ConfigureDialog", "Load previous solution", None, QtGui.QApplication.UnicodeUTF8))
 

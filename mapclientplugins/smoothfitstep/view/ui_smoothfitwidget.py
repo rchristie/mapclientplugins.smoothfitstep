@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '../qt/smoothfitwidget.ui'
+# Form implementation generated from reading ui file 'mapclientplugins\smoothfitstep\qt\smoothfitwidget.ui'
 #
-# Created: Fri Jul 01 14:05:17 2016
+# Created: Mon Jul 15 13:10:42 2019
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 #
 # WARNING! All changes made in this file will be lost!
@@ -12,7 +12,7 @@ from PySide import QtCore, QtGui
 class Ui_SmoothfitWidget(object):
     def setupUi(self, SmoothfitWidget):
         SmoothfitWidget.setObjectName("SmoothfitWidget")
-        SmoothfitWidget.resize(833, 632)
+        SmoothfitWidget.resize(1112, 1046)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -28,7 +28,7 @@ class Ui_SmoothfitWidget(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.dockWidget.sizePolicy().hasHeightForWidth())
         self.dockWidget.setSizePolicy(sizePolicy)
-        self.dockWidget.setMinimumSize(QtCore.QSize(346, 135))
+        self.dockWidget.setMinimumSize(QtCore.QSize(574, 183))
         self.dockWidget.setFeatures(QtGui.QDockWidget.DockWidgetFloatable|QtGui.QDockWidget.DockWidgetMovable)
         self.dockWidget.setAllowedAreas(QtCore.Qt.AllDockWidgetAreas)
         self.dockWidget.setObjectName("dockWidget")
@@ -52,7 +52,7 @@ class Ui_SmoothfitWidget(object):
         self.scrollArea.setWidgetResizable(True)
         self.scrollArea.setObjectName("scrollArea")
         self.scrollAreaWidgetContents = QtGui.QWidget()
-        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 344, 604))
+        self.scrollAreaWidgetContents.setGeometry(QtCore.QRect(0, 0, 572, 1001))
         self.scrollAreaWidgetContents.setObjectName("scrollAreaWidgetContents")
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.scrollAreaWidgetContents)
         self.verticalLayout_3.setSpacing(2)
@@ -81,7 +81,7 @@ class Ui_SmoothfitWidget(object):
 "}")
         self.toolBox.setObjectName("toolBox")
         self.alignPage = QtGui.QWidget()
-        self.alignPage.setGeometry(QtCore.QRect(0, 0, 340, 510))
+        self.alignPage.setGeometry(QtCore.QRect(0, 0, 568, 867))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -165,7 +165,7 @@ class Ui_SmoothfitWidget(object):
         self.verticalLayout_5.addItem(spacerItem)
         self.toolBox.addItem(self.alignPage, "")
         self.fitPage = QtGui.QWidget()
-        self.fitPage.setGeometry(QtCore.QRect(0, 0, 261, 332))
+        self.fitPage.setGeometry(QtCore.QRect(0, 0, 568, 867))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Preferred, QtGui.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -261,22 +261,28 @@ class Ui_SmoothfitWidget(object):
         self.formLayout_2.setWidget(0, QtGui.QFormLayout.FieldRole, self.fitStrainPenaltyLineEdit)
         self.fitPerformButton = QtGui.QPushButton(self.fitSettingsWidget)
         self.fitPerformButton.setObjectName("fitPerformButton")
-        self.formLayout_2.setWidget(5, QtGui.QFormLayout.SpanningRole, self.fitPerformButton)
+        self.formLayout_2.setWidget(6, QtGui.QFormLayout.SpanningRole, self.fitPerformButton)
         self.fitMaxIterationsLabel = QtGui.QLabel(self.fitSettingsWidget)
         self.fitMaxIterationsLabel.setObjectName("fitMaxIterationsLabel")
-        self.formLayout_2.setWidget(2, QtGui.QFormLayout.LabelRole, self.fitMaxIterationsLabel)
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.LabelRole, self.fitMaxIterationsLabel)
         self.fitEdgeDiscontinuityPenaltyLabel = QtGui.QLabel(self.fitSettingsWidget)
         self.fitEdgeDiscontinuityPenaltyLabel.setObjectName("fitEdgeDiscontinuityPenaltyLabel")
-        self.formLayout_2.setWidget(1, QtGui.QFormLayout.LabelRole, self.fitEdgeDiscontinuityPenaltyLabel)
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.LabelRole, self.fitEdgeDiscontinuityPenaltyLabel)
         self.fitEdgeDiscontinuityPenaltyLineEdit = QtGui.QLineEdit(self.fitSettingsWidget)
         self.fitEdgeDiscontinuityPenaltyLineEdit.setObjectName("fitEdgeDiscontinuityPenaltyLineEdit")
-        self.formLayout_2.setWidget(1, QtGui.QFormLayout.FieldRole, self.fitEdgeDiscontinuityPenaltyLineEdit)
+        self.formLayout_2.setWidget(2, QtGui.QFormLayout.FieldRole, self.fitEdgeDiscontinuityPenaltyLineEdit)
         self.fitMaxIterationsSpinBox = QtGui.QSpinBox(self.fitSettingsWidget)
         self.fitMaxIterationsSpinBox.setMinimum(1)
         self.fitMaxIterationsSpinBox.setMaximum(100)
         self.fitMaxIterationsSpinBox.setProperty("value", 1)
         self.fitMaxIterationsSpinBox.setObjectName("fitMaxIterationsSpinBox")
-        self.formLayout_2.setWidget(2, QtGui.QFormLayout.FieldRole, self.fitMaxIterationsSpinBox)
+        self.formLayout_2.setWidget(3, QtGui.QFormLayout.FieldRole, self.fitMaxIterationsSpinBox)
+        self.fitCurvaturePenaltyLineEdit = QtGui.QLineEdit(self.fitSettingsWidget)
+        self.fitCurvaturePenaltyLineEdit.setObjectName("fitCurvaturePenaltyLineEdit")
+        self.formLayout_2.setWidget(1, QtGui.QFormLayout.FieldRole, self.fitCurvaturePenaltyLineEdit)
+        self.fitCurvaturePenaltyLabel = QtGui.QLabel(self.fitSettingsWidget)
+        self.fitCurvaturePenaltyLabel.setObjectName("fitCurvaturePenaltyLabel")
+        self.formLayout_2.setWidget(1, QtGui.QFormLayout.LabelRole, self.fitCurvaturePenaltyLabel)
         self.verticalLayout_6.addWidget(self.fitSettingsWidget)
         self.verticalLayout_4.addWidget(self.fitSettingsGroupBox)
         spacerItem1 = QtGui.QSpacerItem(20, 40, QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Expanding)
@@ -316,7 +322,7 @@ class Ui_SmoothfitWidget(object):
         self.horizontalLayout.addWidget(self.sceneviewerWidget)
 
         self.retranslateUi(SmoothfitWidget)
-        self.toolBox.setCurrentIndex(0)
+        self.toolBox.setCurrentIndex(1)
         self.toolBox.layout().setSpacing(2)
         QtCore.QMetaObject.connectSlotsByName(SmoothfitWidget)
 
@@ -367,6 +373,7 @@ class Ui_SmoothfitWidget(object):
         self.fitEdgeDiscontinuityPenaltyLabel.setText(QtGui.QApplication.translate("SmoothfitWidget", "Edge Discontinuity Pen.:", None, QtGui.QApplication.UnicodeUTF8))
         self.fitEdgeDiscontinuityPenaltyLineEdit.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Penalty factor for discontinuity between adjacent elements. Used only with non-C1 continuous coordinate fields", None, QtGui.QApplication.UnicodeUTF8))
         self.fitMaxIterationsSpinBox.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Maximum number of iterations to limit fit time if convergence is slow", None, QtGui.QApplication.UnicodeUTF8))
+        self.fitCurvaturePenaltyLabel.setText(QtGui.QApplication.translate("SmoothfitWidget", "Curvature Penalty:", None, QtGui.QApplication.UnicodeUTF8))
         self.toolBox.setItemText(self.toolBox.indexOf(self.fitPage), QtGui.QApplication.translate("SmoothfitWidget", "Fit", None, QtGui.QApplication.UnicodeUTF8))
         self.viewAllButton.setToolTip(QtGui.QApplication.translate("SmoothfitWidget", "Adjust the view to see the whole model", None, QtGui.QApplication.UnicodeUTF8))
         self.viewAllButton.setText(QtGui.QApplication.translate("SmoothfitWidget", "View All", None, QtGui.QApplication.UnicodeUTF8))

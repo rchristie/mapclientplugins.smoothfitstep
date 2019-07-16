@@ -48,6 +48,7 @@ class SmoothfitModel(object):
         self._pointCloudData = None
         self._filterTopErrorProportion = 0.9
         self._filterNonNormalProjectionLimit = 0.99
+        self._enableLoadPreviousSolution = False
         self.clear()
 
     def clear(self):
@@ -95,7 +96,12 @@ class SmoothfitModel(object):
 
     def initialise(self):
         self._region = self._context.createRegion()
-        self.setStateAlign()
+        self.load()
+        if self._enableLoadPreviousSolution and self.loadPreviousSolution():
+            # can't do this yet as haven't stored transformation!
+            self.setStatePostAlign()
+        else:
+            self.setStateAlign()
 
 # ----- Align Settings -----
 
@@ -207,7 +213,6 @@ class SmoothfitModel(object):
     def setStateAlign(self):
         self._isStateAlign = True
         self.clearDataProjections()
-        self._load()
 
     def setStatePostAlign(self):
         if not self._isStateAlign:
@@ -223,7 +228,7 @@ class SmoothfitModel(object):
 # ----- Fit Settings -----
 
     def _resetFitSettings(self):
-        self._fitSettings = dict(strain_penalty = 0.0, edge_discontinuity_penalty = 0.0, max_iterations = 1)
+        self._fitSettings = dict(strain_penalty = 0.0, curvature_penalty = 0.0, edge_discontinuity_penalty = 0.0, max_iterations = 1)
 
     def getFilterTopErrorProportion(self):
         return self._filterTopErrorProportion
@@ -245,6 +250,12 @@ class SmoothfitModel(object):
 
     def setFitStrainPenalty(self, penalty):
         self._fitSettings['strain_penalty'] = penalty
+
+    def getFitCurvaturePenalty(self):
+        return self._fitSettings['curvature_penalty']
+
+    def setFitCurvaturePenalty(self, penalty):
+        self._fitSettings['curvature_penalty'] = penalty
 
     def getFitEdgeDiscontinuityPenalty(self):
         return self._fitSettings['edge_discontinuity_penalty']
@@ -279,9 +290,18 @@ class SmoothfitModel(object):
         file = streamInfo.createStreamresourceFile(fileName)
         coord_field_name = self._modelCoordinateField.getName()
         streamInfo.setFieldNames(coord_field_name)
-        streamInfo.setResourceDomainTypes(file, \
+        streamInfo.setResourceDomainTypes(file,
             Field.DOMAIN_TYPE_NODES | Field.DOMAIN_TYPE_MESH1D | Field.DOMAIN_TYPE_MESH2D | Field.DOMAIN_TYPE_MESH3D)
         result = self._region.write(streamInfo)
+
+    def loadPreviousSolution(self):
+        """
+        :param self:
+        :return: true on success, false if failed to load
+        """
+        fileName = self.getOutputModelFileName()
+        result = self._region.read(fileName)
+        return result == ZINC_OK
 
 # -----
 
@@ -294,7 +314,7 @@ class SmoothfitModel(object):
             mesh = fm.findMeshByDimension(dimension)
             if mesh.getSize() > 0:
                 return mesh
-        raise ValueError('Model contains no mesh');
+        raise ValueError('Model contains no mesh')
 
     def _getModelCoordinateField(self):
         """
@@ -303,7 +323,7 @@ class SmoothfitModel(object):
         mesh = self._getMesh()
         element = mesh.createElementiterator().next()
         if not element.isValid():
-            raise ValueError('Model contains no elements');
+            raise ValueError('Model contains no elements')
         fm = self._region.getFieldmodule()
         cache = fm.createFieldcache()
         cache.setElement(element)
@@ -346,7 +366,7 @@ class SmoothfitModel(object):
                 return projectSurfaceGroup, projectSurfaceElementGroup
         return None, None
 
-    def _load(self):
+    def load(self):
         if self._modelReferenceCoordinateField is None:
             # read and rename coordinates to reference_coordinates, for calculating strains
             result = self._region.readFile(self._zincModelFile)
@@ -691,25 +711,44 @@ class SmoothfitModel(object):
 
         self._autorangeSpectrum()
 
-    def _getStrainField(self, mesh):
+    def _getDerivativePenaltyFields(self, mesh):
         fm = self._region.getFieldmodule()
         dimension = mesh.getDimension()
         if dimension == 2:
             # assume nu ~ xi; effect is to penalise elements where this is not so, which is also desired
             dX_dxi1 = fm.createFieldDerivative(self._modelReferenceCoordinateField, 1)
             dX_dxi2 = fm.createFieldDerivative(self._modelReferenceCoordinateField, 2)
-            FXT = fm.createFieldConcatenate([dX_dxi1, dX_dxi2])
-            FX = fm.createFieldTranspose(2, FXT)
-            FXT_FX = fm.createFieldMatrixMultiply(2, FXT, FX)
+            #FXT = fm.createFieldConcatenate([dX_dxi1, dX_dxi2])
+            #FX = fm.createFieldTranspose(2, FXT)
+            #FXT_FX = fm.createFieldMatrixMultiply(2, FXT, FX)
             dx_dxi1 = fm.createFieldDerivative(self._modelCoordinateField, 1)
             dx_dxi2 = fm.createFieldDerivative(self._modelCoordinateField, 2)
-            FxT = fm.createFieldConcatenate([dx_dxi1, dx_dxi2])
-            Fx = fm.createFieldTranspose(2, FxT)
-            FxT_Fx = fm.createFieldMatrixMultiply(2, FxT, Fx)
-            # should multiply following by 0.5, but not needed due to arbitrary weighting
-            strainField = fm.createFieldSubtract(FxT_Fx, FXT_FX)
-            return strainField
-        return None
+            #FxT = fm.createFieldConcatenate([dx_dxi1, dx_dxi2])
+            #Fx = fm.createFieldTranspose(2, FxT)
+            #FxT_Fx = fm.createFieldMatrixMultiply(2, FxT, Fx)
+            ## should multiply following by 0.5, but not needed due to arbitrary weighting
+            #strainField = fm.createFieldSubtract(FxT_Fx, FXT_FX)
+            #return strainField
+            du_dxi1 = fm.createFieldSubtract(dx_dxi1, dX_dxi1)
+            du_dxi2 = fm.createFieldSubtract(dx_dxi2, dX_dxi2)
+            dS1_dxi1 = fm.createFieldMagnitude(dX_dxi1)
+            dS2_dxi2 = fm.createFieldMagnitude(dX_dxi2)
+            du_dS1 = fm.createFieldDivide(du_dxi1, dS1_dxi1)
+            du_dS2 = fm.createFieldDivide(du_dxi2, dS2_dxi2)
+            du_dS = fm.createFieldConcatenate([du_dS1, du_dS2])
+            # curvature:
+            d2u_dSdxi1 = fm.createFieldDerivative(du_dS, 1)
+            d2u_dSdxi2 = fm.createFieldDerivative(du_dS, 2)
+            d2u_dSdS1 = fm.createFieldDivide(d2u_dSdxi1, dS1_dxi1)
+            d2u_dSdS2 = fm.createFieldDivide(d2u_dSdxi2, dS2_dxi2)
+            d2u_dSdS = fm.createFieldConcatenate([d2u_dSdS1, d2u_dSdS2])
+            return du_dS, d2u_dSdS
+        elif dimension == 3:
+            u = fm.createFieldSubtract(self._modelCoordinateField, self._modelReferenceCoordinateField);
+            displacement_gradient = fm.createFieldGradient(u, self._modelReferenceCoordinateField);
+            displacement_gradient2 = fm.createFieldGradient(displacement_gradient, self._modelReferenceCoordinateField);
+            return displacement_gradient, displacement_gradient2
+        return None, None
 
     def _showStrains(self, strainField):
         scene = self._region.getScene()
@@ -736,7 +775,7 @@ class SmoothfitModel(object):
         result = optimisation.addObjectiveField(surfaceFitObjectiveField)
         if result != ZINC_OK:
             raise ValueError('Could not set optimisation surface fit objective field')
-        numberOfGaussPoints = 4
+        numberOfGaussPoints = 3
         mesh = self._mesh
         lineMesh = fm.findMeshByDimension(1)
         if self._projectSurfaceElementGroup is not None:
@@ -744,19 +783,32 @@ class SmoothfitModel(object):
             lineMeshGroup = self._projectSurfaceGroup.getFieldElementGroup(lineMesh).getMeshGroup()
             if lineMeshGroup.isValid():
                 lineMesh = lineMeshGroup
-        if self.getFitStrainPenalty() > 0.0:
-            strainField = self._getStrainField(mesh)
-            if strainField is None:
-                print('Not supported: Apply Strain Penalty' + self.getFitStrainPenalty())
-            else:
-                #print('Apply Strain Penalty' + self.getFitStrainPenalty())
-                weightField = fm.createFieldConstant(self.getFitStrainPenalty())
-                weightedStrainField = strainField*weightField
-                weightedStrainFieldIntegralField = fm.createFieldMeshIntegralSquares(weightedStrainField, self._modelReferenceCoordinateField, mesh)
-                weightedStrainFieldIntegralField.setNumbersOfPoints(numberOfGaussPoints)
-                result = optimisation.addObjectiveField(weightedStrainFieldIntegralField)
-                if result != ZINC_OK:
-                    raise ValueError('Could not add optimisation strain penalty objective field')
+        if (self.getFitStrainPenalty() > 0.0) or (self.getFitCurvaturePenalty() > 0.0):
+            displacementGradient1, displacementGradient2 = self._getDerivativePenaltyFields(mesh)
+            if (self.getFitStrainPenalty() > 0.0):
+                if displacementGradient1 is None:
+                    print('Not supported: Apply Strain Penalty' + self.getFitStrainPenalty())
+                else:
+                    #print('Apply Strain Penalty' + self.getFitStrainPenalty())
+                    weightField = fm.createFieldConstant(self.getFitStrainPenalty())
+                    weightedStrainField = displacementGradient1*weightField
+                    weightedStrainFieldIntegralField = fm.createFieldMeshIntegralSquares(weightedStrainField, self._modelReferenceCoordinateField, mesh)
+                    weightedStrainFieldIntegralField.setNumbersOfPoints(numberOfGaussPoints)
+                    result = optimisation.addObjectiveField(weightedStrainFieldIntegralField)
+                    if result != ZINC_OK:
+                        raise ValueError('Could not add optimisation strain penalty objective field')
+            if (self.getFitCurvaturePenalty() > 0.0):
+                if displacementGradient2 is None:
+                    print('Not supported: Apply Curvature Penalty' + self.getFitCurvaturePenalty())
+                else:
+                    #print('Apply Curvature Penalty' + self.getFitCurvaturePenalty())
+                    weightField = fm.createFieldConstant(self.getFitCurvaturePenalty())
+                    weightedCurvatureField = displacementGradient2*weightField
+                    weightedCurvatureFieldIntegralField = fm.createFieldMeshIntegralSquares(weightedCurvatureField, self._modelReferenceCoordinateField, mesh)
+                    weightedCurvatureFieldIntegralField.setNumbersOfPoints(numberOfGaussPoints)
+                    result = optimisation.addObjectiveField(weightedCurvatureFieldIntegralField)
+                    if result != ZINC_OK:
+                        raise ValueError('Could not add optimisation strain penalty objective field')
         if self.getFitEdgeDiscontinuityPenalty() > 0.0:
             #print('Apply Edge Discontinuity Penalty', self.getFitEdgeDiscontinuityPenalty())
             edgeDiscontinuityField = fm.createFieldEdgeDiscontinuity(self._modelCoordinateField)

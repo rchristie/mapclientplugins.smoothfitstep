@@ -74,6 +74,7 @@ class ConfigureDialog(QtGui.QDialog):
         config = {}
         config['identifier'] = self._ui.lineEdit0.text()
         config['enable_settings_save'] = self._ui.enableSettingsSaveCheckBox.isChecked()
+        config['load_previous_solution'] = self._ui.loadPreviousSolutionCheckBox.isChecked()
         return config
 
     def setConfig(self, config):
@@ -85,3 +86,6 @@ class ConfigureDialog(QtGui.QDialog):
         self._previousIdentifier = config['identifier']
         self._ui.lineEdit0.setText(config['identifier'])
         self._ui.enableSettingsSaveCheckBox.setChecked(config['enable_settings_save'])
+        if not 'load_previous_solution' in config:
+            config['load_previous_solution'] = False
+        self._ui.loadPreviousSolutionCheckBox.setChecked(config['load_previous_solution'])

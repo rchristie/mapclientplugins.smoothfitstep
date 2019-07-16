@@ -69,8 +69,9 @@ class smoothfitStep(WorkflowStepMountPoint):
             smoothfitModel.setZincPointCloudFile(self._inputZincPointCloudFile)
         if self._inputPointCloudData is not None:
             smoothfitModel.setPointCloudData(self._inputPointCloudData)
-        self._view.initialise()
         self._view.setEnableSettingsSave(self._config['enable_settings_save'])
+        self._view.setEnableLoadPreviousSolution(False) # self._config['load_previous_solution']
+        self._view.initialise()
         self._setCurrentWidget(self._view)
 
     def setPortData(self, index, dataIn):
