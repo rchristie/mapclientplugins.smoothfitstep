@@ -11,7 +11,14 @@ def readfile(filename, split=False):
         return stream.read()
 
 readme = readfile("README.rst", split=True)[3:]  # skip title
-requires = readfile("requirements.txt", split=True)
+# For requirements not hosted on PyPi place listings
+# into the 'requirements.txt' file.
+#requires = readfile("requirements.txt")
+requires = [
+    # minimal requirements listing
+    "opencmiss.zinc >= 3.3",  # not yet on pypi - need manual install from opencmiss.org
+    "opencmiss.zincwidgets >= 2.0.3"
+]
 license = readfile("LICENSE")
 
 setup(

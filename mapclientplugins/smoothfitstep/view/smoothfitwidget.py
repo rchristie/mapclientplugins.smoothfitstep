@@ -3,12 +3,12 @@ Created on July 15, 2015
 
 @author: Richard Christie
 '''
-from PySide import QtGui, QtCore
+from PySide2 import QtCore, QtWidgets
 
 from mapclientplugins.smoothfitstep.view.ui_smoothfitwidget import Ui_SmoothfitWidget
 from opencmiss.zinc.scene import Scene
 
-class SmoothfitWidget(QtGui.QWidget):
+class SmoothfitWidget(QtWidgets.QWidget):
     '''
     classdocs
     '''
