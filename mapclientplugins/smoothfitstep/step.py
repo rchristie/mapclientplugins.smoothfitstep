@@ -4,7 +4,7 @@ MAP Client Plugin Step
 import os
 import json
 
-from PySide import QtGui
+from PySide2 import QtGui, QtWidgets
 
 from mapclient.mountpoints.workflowstep import WorkflowStepMountPoint
 from mapclientplugins.smoothfitstep.configuredialog import ConfigureDialog
@@ -100,7 +100,7 @@ class smoothfitStep(WorkflowStepMountPoint):
         then set:
             self._configured = True
         '''
-        dlg = ConfigureDialog()
+        dlg = ConfigureDialog(QtWidgets.QApplication.activeWindow().current_widget())
         dlg.identifierOccursCount = self._identifierOccursCount
         dlg.setConfig(self._config)
         dlg.validate()
